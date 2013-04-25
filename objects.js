@@ -4774,7 +4774,7 @@ Note.prototype.setupContext = function () {
 
 Note.prototype.play = function () {
     this.oscillator = this.audioContext.createOscillator();
-    this.oscillator.type = 0;
+    this.oscillator.type = 1;
     this.oscillator.frequency.value =
         Math.pow(2, (this.pitch - 69) / 12) * 440;
     this.oscillator.connect(this.gainNode);
@@ -4784,8 +4784,15 @@ Note.prototype.play = function () {
 
 Note.prototype.stop = function () {
     if (this.oscillator) {
+        volume = Note.prototype.gainNode.gain.value;
+        while (volume>0) {
+            volume = volume-.0000002;
+            Note.prototype.gainNode.gain.value = volume;
+        }
         this.oscillator.noteOff(0); // deprecated, renamed to stop()
         this.oscillator = null;
+        Note.prototype.gainNode.gain.value = .25;
+
     }
 };
 
