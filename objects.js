@@ -437,7 +437,7 @@ SpriteMorph.prototype.initBlocks = function () {
         doSetInstrument: {
             type: 'command',
             category: 'sound',
-            spec: 'set instrument to %n',
+            spec: 'set instrument to %inst',
             defaults: [129]
         },
         getInstrument: {
@@ -4812,9 +4812,9 @@ Note.prototype.setupContext = function () {
 
 // Note playing
 
-Note.prototype.play = function () {
+Note.prototype.play = function (instrument) {
     this.oscillator = this.audioContext.createOscillator();
-    this.oscillator.type = 129 - 129;
+    this.oscillator.type = instrument - 129;
     this.oscillator.frequency.value =
         Math.pow(2, (this.pitch - 69) / 12) * 440;
     this.oscillator.connect(this.gainNode);
