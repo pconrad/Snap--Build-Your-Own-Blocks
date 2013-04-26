@@ -434,6 +434,17 @@ SpriteMorph.prototype.initBlocks = function () {
             category: 'sound',
             spec: 'tempo'
         },
+        doSetInstrument: {
+            type: 'command',
+            category: 'sound',
+            spec: 'set instrument to %n',
+            defaults: [129]
+        },
+        getInstrument: {
+            type: 'reporter',
+            category: 'sound',
+            spec: 'instrument'
+        },
 
         // Pen
         clear: {
@@ -1494,6 +1505,10 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('doStopAllSounds'));
         blocks.push('-');
         blocks.push(block('doRest'));
+        blocks.push('-');
+        blocks.push(block('doSetInstrument'));
+        blocks.push(watcherToggle('getInstrument'));
+        blocks.push(block('getInstrument'));
         blocks.push('-');
         blocks.push(block('doPlayNote'));
         blocks.push('-');
@@ -2692,6 +2707,16 @@ SpriteMorph.prototype.getTempo = function () {
     return 0;
 };
 
+// SpriteMorph instrument
+
+SpriteMorph.prototype.getInstrument = function () {
+    var stage = this.parentThatIsA(StageMorph);
+    if (stage) {
+        return stage.getInstrument();
+    }
+    return 0;
+};
+
 // SpriteMorph user prompting
 
 SpriteMorph.prototype.getLastAnswer = function () {
@@ -3085,6 +3110,7 @@ StageMorph.prototype.init = function (globals) {
 
     this.timerStart = Date.now();
     this.tempo = 60; // bpm
+    this.instrument = 129; // sine wave
 
     this.watcherUpdateFrequency = 2;
     this.lastWatcherUpdate = Date.now();
@@ -3330,6 +3356,16 @@ StageMorph.prototype.changeTempo = function (delta) {
 
 StageMorph.prototype.getTempo = function () {
     return +this.tempo;
+};
+
+// StageMorph instrument
+
+StageMorph.prototype.setInstrument = function (inst) {
+    this.instrument = inst;
+};
+
+StageMorph.prototype.getInstrument = function () {
+    return +this.instrument;
 };
 
 // StageMorph drag & drop
@@ -3636,6 +3672,10 @@ StageMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('doStopAllSounds'));
         blocks.push('-');
         blocks.push(block('doRest'));
+        blocks.push('-');
+        blocks.push(block('doSetInstrument'));
+        blocks.push(watcherToggle('getInstrument'));
+        blocks.push(block('getInstrument'));
         blocks.push('-');
         blocks.push(block('doPlayNote'));
         blocks.push('-');
@@ -4774,7 +4814,7 @@ Note.prototype.setupContext = function () {
 
 Note.prototype.play = function () {
     this.oscillator = this.audioContext.createOscillator();
-    this.oscillator.type = 0;
+    this.oscillator.type = 129 - 129;
     this.oscillator.frequency.value =
         Math.pow(2, (this.pitch - 69) / 12) * 440;
     this.oscillator.connect(this.gainNode);
@@ -4784,8 +4824,14 @@ Note.prototype.play = function () {
 
 Note.prototype.stop = function () {
     if (this.oscillator) {
+        volume = Note.prototype.gainNode.gain.value;
+        while (volume>0){
+            volume=volume-.0000002;
+            Note.prototype.gainNode.gain.value = volume;
+        }
         this.oscillator.noteOff(0); // deprecated, renamed to stop()
         this.oscillator = null;
+        Note.prototype.gainNode.gain.value = .25;
     }
 };
 
@@ -5171,7 +5217,7 @@ WatcherMorph.prototype.object = function () {
 };
 
 WatcherMorph.prototype.isGlobal = function (selector) {
-    return contains(['getTimer', 'getLastAnswer', 'getTempo'], selector);
+    return contains(['getTimer', 'getLastAnswer', 'getTempo', 'getInstrument'], selector);
 };
 
 // WatcherMorph slider accessing:

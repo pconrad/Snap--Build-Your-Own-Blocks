@@ -2313,6 +2313,16 @@ Process.prototype.doSetTempo = function (bpm) {
     }
 };
 
+Process.prototype.doSetInstrument = function (inst) {
+    var stage;
+    if (this.homeContext.receiver) {
+        stage = this.homeContext.receiver.parentThatIsA(StageMorph);
+        if (stage) {
+            stage.setInstrument(inst);
+        }
+    }
+};
+
 Process.prototype.doPlayNote = function (pitch, beats) {
     var tempo = this.reportTempo();
     this.doPlayNoteForSecs(

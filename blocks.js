@@ -744,17 +744,20 @@ SyntaxElementMorph.prototype.labelPart = function (spec) {
             part = new InputSlotMorph(
                 null,
                 true,
-                {
-                    '(1) Acoustic Grand' : 1,
-                    '(2) Bright Acoustic' : 2,
-                    '(3) Electric Grand' : 3,
-                    '(4) Honky Tonk' : 4,
-                    '(5) Electric Piano 1' : 5,
-                    '(6) Electric Piano 2' : 6,
-                    '(7) Harpsichord' : 7
+                {   //'(1) Acoustic Grand' : 1,
+                    //'(2) Bright Acoustic' : 2,
+                    //'(3) Electric Grand' : 3,
+                    //'(4) Honky Tonk' : 4,
+                    //'(5) Electric Piano 1' : 5,
+                    //'(6) Electric Piano 2' : 6,
+                    //'(7) Harpsichord' : 7,
+                    '(129) Sine Wave' : 129,
+                    '(130) Square Wave' : 130,
+                    '(131) Sawtooth Wave' : 131,
+                    '(132) Triangle Wave' : 132
                 }
             );
-            part.setContents(1);
+            part.setContents(129);
             break;
         case '%month':
             part = new InputSlotMorph(
