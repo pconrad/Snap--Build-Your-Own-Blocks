@@ -2313,6 +2313,27 @@ Process.prototype.doSetTempo = function (bpm) {
     }
 };
 
+Process.prototype.reportInstrument = function () {
+    var stage;
+    if (this.homeContext.receiver) {
+        stage = this.homeContext.receiver.parentThatIsA(StageMorph);
+        if (stage) {
+            return stage.getInstrument();
+        }
+    }
+    return 0;
+};
+
+Process.prototype.doSetInstrument = function (inst) {
+    var stage;
+    if (this.homeContext.receiver) {
+        stage = this.homeContext.receiver.parentThatIsA(StageMorph);
+        if (stage) {
+            stage.setInstrument(inst);
+        }
+    }
+};
+
 Process.prototype.doPlayNote = function (pitch, beats) {
     var tempo = this.reportTempo();
     this.doPlayNoteForSecs(
@@ -2321,12 +2342,13 @@ Process.prototype.doPlayNote = function (pitch, beats) {
     );
 };
 
-Process.prototype.doPlayNoteForSecs = function (pitch, secs) {
+Process.prototype.doPlayNoteForSecs = function (pitch, secs, instrument) {
     // interpolated
+    var instrument = this.reportInstrument();
     if (!this.context.startTime) {
         this.context.startTime = Date.now();
         this.context.activeNote = new Note(pitch);
-        this.context.activeNote.play();
+        this.context.activeNote.play(instrument);
     }
     if ((Date.now() - this.context.startTime) >= (secs * 1000)) {
         if (this.context.activeNote) {
