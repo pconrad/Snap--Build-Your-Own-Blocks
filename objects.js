@@ -4784,15 +4784,20 @@ Note.prototype.play = function () {
 
 Note.prototype.stop = function () {
     if (this.oscillator) {
-        volume = Note.prototype.gainNode.gain.value;
+    
+    /** This assignment and while loop are a hack to 
+        approximate a decay envelope. A better way to do 
+        this would be to use techniques at this link
+        http://www.softsynth.com/webaudio/gainramp.php
+    **/
+        saveVolume = volume= Note.prototype.gainNode.gain.value;
         while (volume>0) {
             volume = volume-.0000002;
             Note.prototype.gainNode.gain.value = volume;
         }
         this.oscillator.noteOff(0); // deprecated, renamed to stop()
         this.oscillator = null;
-        Note.prototype.gainNode.gain.value = .25;
-
+        Note.prototype.gainNode.gain.value = saveVolume; // restore orig Vol
     }
 };
 
