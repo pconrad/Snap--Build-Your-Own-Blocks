@@ -4739,7 +4739,9 @@ Sound.prototype.toDataURL = function () {
 
 // Note instance creation
 
-function Note(pitch) {
+function Note(pitch,durationSecs,startTime) {
+    this.durationSecs = durationSecs; 
+    this.startTime = startTime; 
     this.pitch = pitch === 0 ? 0 : pitch || 69;
     this.setupContext();
     this.oscillator = null;
@@ -4767,25 +4769,60 @@ Note.prototype.setupContext = function () {
     }
     Note.prototype.audioContext = new AudioContext();
     Note.prototype.gainNode = Note.prototype.audioContext.createGainNode();
-    Note.prototype.gainNode.gain.value = 0.25; // reduce volume by 1/4
+    Note.prototype.gainNode.gain.value = 0.75; // reduce volume by 1/4
 };
 
 // Note playing
 
 Note.prototype.play = function () {
     this.oscillator = this.audioContext.createOscillator();
-    this.oscillator.type = 0;
-    this.oscillator.frequency.value =
-        Math.pow(2, (this.pitch - 69) / 12) * 440;
-    this.oscillator.connect(this.gainNode);
-    this.gainNode.connect(this.audioContext.destination);
+    this.noteGain = this.audioContext.createGainNode();
+    this.noteGain.gain.value = 0.0;
+
     this.oscillator.noteOn(0); // deprecated, renamed to start()
+
+    var now = this.audioContext.currentTime;
+    this.noteGain.gain.cancelScheduledValues( now );
+    
+    // Anchor beginning of ramp at current value.
+    this.noteGain.gain.setValueAtTime(0, now);
+
+    // Ramp up and down.
+
+    this.noteGain.gain.linearRampToValueAtTime(1.0, now + .5);
+    this.noteGain.gain.linearRampToValueAtTime(0.0, now + 1);
+    
+
+    /*    a = .001;
+    s = 1;
+    d = .0005;
+    r = .2;
+    duration = this.durationSecs; 
+    volume = 1;
+    now = this.startTime;
+
+    this.noteGain.gain.value = 0;
+    this.noteGain.gain.setValueAtTime(0, now);
+    this.noteGain.gain.linearRampToValueAtTime(volume, now + a);
+    this.noteGain.gain.exponentialRampToValueAtTime(s, now + (a + d));
+    this.noteGain.gain.exponentialRampToValueAtTime(0, now + duration); */
+
+    this.oscillator.type = 0; // 0=sin 1=square etc.
+    this.oscillator.frequency.value =
+    Math.pow(2, (this.pitch - 69) / 12) * 440; // should be 440
+    this.oscillator.connect(this.noteGain);
+    this.noteGain.connect(this.gainNode);
+    this.gainNode.connect(this.audioContext.destination);
+
 };
 
 Note.prototype.stop = function () {
     if (this.oscillator) {
         this.oscillator.noteOff(0); // deprecated, renamed to stop()
         this.oscillator = null;
+    }
+    if (this.noteGain) {
+	this.noteGain = null; // facilitate garbage collection
     }
 };
 
