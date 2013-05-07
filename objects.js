@@ -4790,35 +4790,24 @@ Note.prototype.play = function () {
 
     // Ramp up and down.
     
-    var attack = 0.5;
-    var decay = 0.5;
-    var sustainLevel = 0.75;
-
-    // this.noteGain.gain.linearRampToValueAtTime(this.amplitude, now + attack);
-    // this.noteGain.gain.linearRampToValueAtTime(0.0, now + this.durationSecs);
+    var env = {attack: 0.05,
+	       decay: 0.05,
+	       sustainLevel: 0.75,
+	       release: 0.05};
 
     this.noteGain.gain.setValueAtTime(0, now);
-    this.noteGain.gain.linearRampToValueAtTime(1, now + this.durationSecs/2);
-    this.noteGain.gain.linearRampToValueAtTime(0, now + this.durationSecs); 
+    this.noteGain.gain.linearRampToValueAtTime(this.amplitude, 
+					       now + env.attack);
+    this.noteGain.gain.exponentialRampToValueAtTime(this.amplitude * env.sustainLevel, 
+					       now + env.attack + env.decay);
+    this.noteGain.gain.setValueAtTime(this.amplitude * env.sustainLevel, 
+					       (now + this.durationSecs) - env.release);
+    this.noteGain.gain.exponentialRampToValueAtTime(0, now + this.durationSecs); 
     
 
-    /*    a = .001;
-    s = 1;
-    d = .0005;
-    r = .2;
-    duration = this.durationSecs; 
-    volume = 1;
-    now = this.startTime;
-
-    this.noteGain.gain.value = 0;
-    this.noteGain.gain.setValueAtTime(0, now);
-    this.noteGain.gain.linearRampToValueAtTime(volume, now + a);
-    this.noteGain.gain.exponentialRampToValueAtTime(s, now + (a + d));
-    this.noteGain.gain.exponentialRampToValueAtTime(0, now + duration); */
-
-    this.oscillator.type = 0; // 0=sin 1=square etc.
+    this.oscillator.type = 2; // 0=sin 1=square etc.
     this.oscillator.frequency.value =
-    Math.pow(2, (this.pitch - 69) / 12) * 440; // should be 440
+       Math.pow(2, (this.pitch - 69) / 12) * 440; // should be 440
     this.oscillator.connect(this.noteGain);
     this.noteGain.connect(this.gainNode);
     this.gainNode.connect(this.audioContext.destination);

@@ -2325,8 +2325,8 @@ Process.prototype.doPlayNoteForSecs = function (pitch, secs) {
     // interpolated
     if (!this.context.startTime) {
         this.context.startTime = Date.now();
-	// TODO: replace 1 on next line with current volume of this sprite
-        this.context.activeNote = new Note(pitch,secs,this.context.startTime,1);
+	// TODO: replace 0.25 on next line with current volume of this sprite
+        this.context.activeNote = new Note(pitch,secs,this.context.startTime,0.25);
         this.context.activeNote.play();
     }
     if ((Date.now() - this.context.startTime) >= (secs * 1000)) {
