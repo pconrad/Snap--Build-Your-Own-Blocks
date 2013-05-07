@@ -4739,9 +4739,10 @@ Sound.prototype.toDataURL = function () {
 
 // Note instance creation
 
-function Note(pitch,durationSecs,startTime) {
+function Note(pitch,durationSecs,startTime,amplitude) {
     this.durationSecs = durationSecs; 
     this.startTime = startTime; 
+    this.amplitude = amplitude;
     this.pitch = pitch === 0 ? 0 : pitch || 69;
     this.setupContext();
     this.oscillator = null;
@@ -4788,9 +4789,17 @@ Note.prototype.play = function () {
     this.noteGain.gain.setValueAtTime(0, now);
 
     // Ramp up and down.
+    
+    var attack = 0.5;
+    var decay = 0.5;
+    var sustainLevel = 0.75;
 
-    this.noteGain.gain.linearRampToValueAtTime(1.0, now + .5);
-    this.noteGain.gain.linearRampToValueAtTime(0.0, now + 1);
+    // this.noteGain.gain.linearRampToValueAtTime(this.amplitude, now + attack);
+    // this.noteGain.gain.linearRampToValueAtTime(0.0, now + this.durationSecs);
+
+    this.noteGain.gain.setValueAtTime(0, now);
+    this.noteGain.gain.linearRampToValueAtTime(1, now + this.durationSecs/2);
+    this.noteGain.gain.linearRampToValueAtTime(0, now + this.durationSecs); 
     
 
     /*    a = .001;
