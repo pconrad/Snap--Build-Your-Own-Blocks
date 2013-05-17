@@ -4790,22 +4790,22 @@ Note.prototype.play = function () {
 
     // Ramp up and down.
     
-    var env = {attack: 0.05,
-	       decay: 0.05,
-	       sustainLevel: 0.75,
-	       release: 0.05};
+    var attack = 0.01;
+    var decay = 0.01;
+    var sustainLevel = 0.75;
+    var release = 0.01;
 
     this.noteGain.gain.setValueAtTime(0, now);
     this.noteGain.gain.linearRampToValueAtTime(this.amplitude, 
-					       now + env.attack);
-    this.noteGain.gain.exponentialRampToValueAtTime(this.amplitude * env.sustainLevel, 
-					       now + env.attack + env.decay);
-    this.noteGain.gain.setValueAtTime(this.amplitude * env.sustainLevel, 
-					       (now + this.durationSecs) - env.release);
-    this.noteGain.gain.exponentialRampToValueAtTime(0, now + this.durationSecs); 
+					       now + attack);
+    this.noteGain.gain.linearRampToValueAtTime(this.amplitude * sustainLevel, 
+					       now + attack + decay);
+    this.noteGain.gain.setValueAtTime(this.amplitude * sustainLevel, 
+				      (now + this.durationSecs) - release);
+    this.noteGain.gain.linearRampToValueAtTime(0, now + this.durationSecs); 
     
 
-    this.oscillator.type = 2; // 0=sin 1=square etc.
+    this.oscillator.type = 0; // 0=sin 1=square etc.
     this.oscillator.frequency.value =
        Math.pow(2, (this.pitch - 69) / 12) * 440; // should be 440
     this.oscillator.connect(this.noteGain);
